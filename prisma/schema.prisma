@@ -25,6 +25,7 @@ model Barang {
   nama_barang String
   jumlah_barang Int
   deskripsi_barang String
+  gambar_barang String[]
   kategori Kategori @relation(fields: [kategoriId], references: [id])
   kategoriId String @db.ObjectId
   transaksiBarang TransaksiBarang[]

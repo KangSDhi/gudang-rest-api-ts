@@ -1,14 +1,50 @@
-import BarangController from "../controllers/barang.controller";
-import { Router } from "express";
-
-const controller = new BarangController();
+import barangController from "../controllers/barang.controller";
+import { Router, Request, Response, NextFunction } from "express";
+import { check } from "express-validator";
 
 const router: Router = Router();
 
-router.get('/barang', controller.getBarang);
+const controller = new barangController();
 
-router.post('/barang', controller.createBarang);
+router.get('/barang', (req: Request, res: Response, next: NextFunction) => {
+    const { size, page } = req.query;    
+    if(size !== undefined && page !== undefined){
+        return controller.readBarangLimit(req, res, next);
+    }else{
+        return controller.readBarang(req, res, next);
+    }
+});
 
-router.post('/barang/limit', controller.getLimitBarang);
+router.get('/barang/:id', controller.readBarangByID);
+
+router.post('/barang', 
+    [
+        check('nama_barang')
+            .notEmpty()
+            .withMessage('Mohon Isi Nama Barang!'),
+        check('jumlah_barang')
+            .notEmpty()
+            .withMessage('Mohon Isi Jumlah Barang!')
+            .isNumeric()
+            .withMessage('Mohon Isi Jumlah Barang Dengan Angka!'),
+        check('deskripsi_barang')
+            .notEmpty()
+            .withMessage('Mohon Isi Deskripsi Barang!'),
+        check('kategoriId')
+            .notEmpty()
+            .withMessage('Mohon Isi Kategori ID!'),
+        check('penggunaId')
+            .notEmpty()
+            .withMessage('Mohon Isi Pengguna ID!')
+        
+    ],controller.createBarang);
+
+router.put('/barang/:id', controller.updateBarang);
+
+router.delete('/barang/:id', controller.deleteBarang);
+
+router.put('/barang/:id', controller.updateBarang);
+
+router.delete('/barang/:id', controller.deleteBarang);
 
 export default router;
