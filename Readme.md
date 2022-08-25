@@ -123,14 +123,13 @@
 
 * Request :
     * Method : **PUT**
-    * Endpoint : `/api/gudang/kategori`
+    * Endpoint : `/api/gudang/kategori/{id}`
     * Headers :
         * Accept : `application/json`
         * Content-Type : `application/json`
     * Body : 
     ```json
     {
-        "id" : "string, unique",
         "kode_kategori" : "string, unique",
         "nama_kategori" : "string",
         "sub_kategori" : "string",
@@ -277,6 +276,7 @@
     ```json
     {
         "kategoriId": "string",
+        "penggunaId": "string",
         "nama_barang": "string",
         "jumlah_barang": "number",
         "deskripsi_barang": "string",
@@ -319,9 +319,7 @@
     ```json
     {
         "id": "string, unique",
-        "nama_kategori": "string",
-        "nama_barang": "string",
-        "jumlah_barang": "number",
+        "kategoriId": "string",
         "deskripsi_barang": "string",
         "gambar_barang": [
             "string"   
@@ -343,7 +341,6 @@
         "gambar_barang": [
             "string"   
         ],
-        "createdAt": "number",
         "updatedAt": "number"
     }
 }

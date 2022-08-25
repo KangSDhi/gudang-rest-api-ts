@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { Prisma } from "@prisma/client";
 import { validationResult } from "express-validator";
 import { 
     createBarang, 
@@ -8,6 +9,12 @@ import {
     updateBarang,
     deleteBarang 
 } from "../services/barang.service";
+import { createTransaksiMasuk } from "../services/transaksiBarang.service";
+import iBarang from "../interface/barang.interface";
+import iTransaksi from "../interface/transaksiBarang.interface"
+import { Logger } from "tslog";
+
+const log: Logger = new Logger({ name: "BarangController" });
 
 class BarangController {
 
@@ -153,14 +160,56 @@ class BarangController {
         }
 
         try{
-            const result = await createBarang(req.body);
+            const files = req.files as Express.Multer.File[];
+            const images: string[] = [];
+
+            if(files !== undefined){
+                for (let index = 0; index < files.length; index++) {
+                    const filename = files[index].filename.split("/")[1];
+                    images.push(filename);
+                }
+            }
+
+            const dataBarang: iBarang = {
+                nama_barang: req.body.nama_barang as string,
+                jumlah_barang: Number(req.body.jumlah_barang) as number,
+                deskripsi_barang: req.body.deskripsi_barang as string,
+                gambar_barang: images,
+                kategoriId: req.body.kategoriId as string,
+                createdAt: new Date().getTime() as number,
+                updatedAt: new Date().getTime() as number
+            };
+
+            const result = await createBarang(dataBarang);
+
+            const dataTranskasi: iTransaksi = {
+                tanggal_masuk: Number(req.body.tanggal_masuk) as number,
+                jumlah_barang: Number(req.body.jumlah_barang) as number,
+                barangId: result.id,
+                penggunaId: req.body.penggunaId,
+                createdAt: new Date().getTime(),
+                updatedAt: new Date().getTime()
+            };
+
+            await createTransaksiMasuk(dataTranskasi);
+            
             res.status(201).json({
                 code: 201,
                 status: "Berhasil Menambahkan Barang",
                 data: result
             });
         }catch(error){
-            next(error);
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                log.info(error.code);
+                let code: number;
+                let status: string;
+                code = 500;
+                status = "Server Error";
+                res.status(code).json({
+                    code,
+                    status
+                });
+            }
         }
     }
 

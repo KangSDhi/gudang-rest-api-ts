@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import { Request } from "express";
+import iBarang from "../interface/barang.interface";
 
 const prisma  = new PrismaClient();
 
@@ -50,23 +52,22 @@ export const findByIDBarang = async (req: any) => {
     return query;
 }
 
-export const createBarang = async (req: any) => {
-    const { nama_barang, jumlah_barang, deskripsi_barang, kategoriId } = req;
+export const createBarang = async (data: iBarang) => {
+    const { nama_barang, jumlah_barang, deskripsi_barang, gambar_barang, kategoriId, createdAt, updatedAt } = data;
+
     const query = await prisma.barang.create({
         data: {
             nama_barang: nama_barang,
             jumlah_barang: jumlah_barang,
             deskripsi_barang: deskripsi_barang,
-            gambar_barang: [
-                "aaa.jpg", "bb.jpg"
-            ],
+            gambar_barang: gambar_barang,
             kategori: {
                 connect: {
                     id: kategoriId
                 }
             },
-            createdAt: new Date().getTime(),
-            updatedAt: new Date().getTime()
+            createdAt: createdAt,
+            updatedAt: updatedAt
         }
     });
     return query;

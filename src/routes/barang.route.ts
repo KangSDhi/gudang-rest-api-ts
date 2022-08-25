@@ -1,6 +1,7 @@
 import barangController from "../controllers/barang.controller";
-import { Router, Request, Response, NextFunction } from "express";
-import { check } from "express-validator";
+import { Router, Request, Response, NextFunction, request } from "express";
+import { body, check } from "express-validator";
+import upload from "../helpers/multer";
 
 const router: Router = Router();
 
@@ -19,6 +20,7 @@ router.get('/barang/:id', controller.readBarangByID);
 
 router.post('/barang', 
     [
+        upload.array('foto', 5),
         check('nama_barang')
             .notEmpty()
             .withMessage('Mohon Isi Nama Barang!'),
@@ -36,7 +38,6 @@ router.post('/barang',
         check('penggunaId')
             .notEmpty()
             .withMessage('Mohon Isi Pengguna ID!')
-        
     ],controller.createBarang);
 
 router.put('/barang/:id', controller.updateBarang);
